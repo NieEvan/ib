@@ -1,6 +1,6 @@
 import asyncio
 from ib_insync import IB, util
-from ib_insync.contract import *  # noqa
+from ib_insync.contract import *
 import pandas as pd
 
 ib = IB()
