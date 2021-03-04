@@ -1,0 +1,46 @@
+version: 1
+formatters:
+  standard:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+handlers:
+  stdout:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+    stream: ext://sys.stdout
+  console:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: standard
+    filename: log/console.log
+    when: d
+    backupCount: 4
+    encoding: utf8
+  data:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: standard
+    filename: log/data.log
+    when: d
+    backupCount: 4
+    encoding: utf8
+  db:
+    class: logging.handlers.TimedRotatingFileHandler
+    level: DEBUG
+    formatter: standard
+    filename: log/db.log
+    when: d
+    backupCount: 4
+    encoding: utf8
+loggers:
+  dbLogger:
+    level: DEBUG
+    handlers: [ db ]
+    propagate: no
+  data:
+    level: DEBUG
+    handlers: [ data ]
+    propagate: no
+root:
+  level: DEBUG
+  handlers: [ stdout, console ]
