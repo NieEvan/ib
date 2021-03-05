@@ -1,6 +1,6 @@
 import time
 
-from ib_insync import IB, BarDataList
+from ib_insync import IB, BarDataList, util
 from ib_insync.contract import *
 
 from src.db import *
@@ -77,29 +77,31 @@ def request_historical_data(ib: IB, contract: Contract, barSizeSetting: str):
 
 
 if __name__ == '__main__':
-    # 创建 IB 对象并尝试连接
-    try:
-        ib = IB()
-        ib.connect('127.0.0.1', 7497, clientId=2)
+    # 出现异常后自动重新尝试连接 TWS 和订阅 K 线
+    while True:
+        try:
+            # 创建 IB 对象并尝试连接
+            ib = IB()
+            ib.connect('127.0.0.1', 7497, clientId=2)
 
-        contracts = [
-            Forex('EURUSD'),
-            Stock(symbol="AAPL", exchange="SMART", currency="USD"),
-            Stock(symbol="1810", exchange="SEHK", currency="HKD"),
-            Stock(symbol="601636", exchange="SEHKNTL"),
-            Stock(symbol="000725", exchange="SEHKSZSE"),
-        ]
-        # 创建保存 K 线所用的 DB 表格
-        create_tables()
-        # 订阅 5 分钟 K 线
-        for contract in contracts:
-            try:
-                bars = request_historical_data(ib=ib, contract=contract, barSizeSetting="5 mins")
-                bars.updateEvent += on_bar_update
-            except Exception as e1:
-                logger.exception(e1)
-        while True:
-            time.sleep(100)
-        # ib.sleep(1000)
-    except Exception as e:
-        logger.exception(e)
+            contracts = [
+                Forex('EURUSD'),
+                Stock(symbol="AAPL", exchange="SMART", currency="USD"),
+                # Stock(symbol="1810", exchange="SEHK", currency="HKD"),
+                # Stock(symbol="601636", exchange="SEHKNTL"),
+                # Stock(symbol="000725", exchange="SEHKSZSE"),
+            ]
+            # 创建保存 K 线所用的 DB 表格
+            create_tables()
+            # 订阅 5 分钟 K 线
+            for contract in contracts:
+                try:
+                    bars = request_historical_data(ib=ib, contract=contract, barSizeSetting="5 mins")
+                    bars.updateEvent += on_bar_update
+                except Exception as e1:
+                    logger.exception(e1)
+            while True:
+                ib.sleep(100)
+        except Exception as e:
+            logger.exception(e)
+            time.sleep(10)
