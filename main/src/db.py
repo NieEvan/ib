@@ -1,5 +1,6 @@
 import sqlite3
 from src.project_config_util import get_sqlite3_db_connection
+import pandas as pd
 
 
 def create_tables():
@@ -39,3 +40,11 @@ def update_k_bars(df, _type):
     cursor.close()
     connection.commit()
     connection.close()
+
+
+def get_k_bars_from_db(symbol, _type, limit: int):
+    connection = get_sqlite3_db_connection()
+    sql = '''select * from kbars where symbol = "{}" and type = '{}' order by `date` desc limit {};'''.format(symbol, _type, limit)
+    df = pd.read_sql(sql=sql, con=connection)
+    connection.close()
+    return df

@@ -83,7 +83,19 @@ if __name__ == '__main__':
             # 创建 IB 对象并尝试连接
             ib = IB()
             ib.connect('127.0.0.1', 7497, clientId=2)
-
+            """
+            #  方式1: 从 csv 文件 xxx.csv 获取股票列表
+            #1> symbols
+            #2> AAPl
+            #3> BIDU
+            csv_file_path = 'xxx.csv'
+            with open(csv_file_path) as f:
+                lines = f.readlines()
+            symbols = lines[1:]
+            contracts = [Stock(symbol=symbol, exchange="SMART", currency="USD") for symbol in symbols]
+            """
+            # """
+            # 方式2: 直接定义股票列表
             contracts = [
                 Forex('EURUSD'),
                 Stock(symbol="AAPL", exchange="SMART", currency="USD"),
@@ -91,17 +103,21 @@ if __name__ == '__main__':
                 # Stock(symbol="601636", exchange="SEHKNTL"),
                 # Stock(symbol="000725", exchange="SEHKSZSE"),
             ]
+            # """
             # 创建保存 K 线所用的 DB 表格
             create_tables()
-            # 订阅 5 分钟 K 线
+            # 订阅多种类型的 K 线
+            _types = ['5 secs', '10 secs', '5 mins']
             for contract in contracts:
-                try:
-                    bars = request_historical_data(ib=ib, contract=contract, barSizeSetting="5 mins")
-                    bars.updateEvent += on_bar_update
-                except Exception as e1:
-                    logger.exception(e1)
+                for _type in _types:
+                    try:
+                        bars = request_historical_data(ib=ib, contract=contract, barSizeSetting=_type)
+                        bars.updateEvent += on_bar_update
+                    except Exception as e1:
+                        logger.exception(e1)
             while True:
-                ib.sleep(100)
+                ib.sleep(10)
+                print("get_k_bars_from_db: ", get_k_bars_from_db(symbol="EURUSD", _type="5 secs", limit=10))
         except Exception as e:
             logger.exception(e)
             time.sleep(10)
