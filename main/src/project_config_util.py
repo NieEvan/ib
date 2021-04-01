@@ -11,12 +11,20 @@ def _get_config():
     return config
 
 
-def get_sqlite3_db_path():
-    return _get_config()['db']['sqlite3']['file']
+def get_sqlite3_db_dir():
+    return _get_config()['db']['sqlite3']['dir']
+
+
+def get_sqlite3_db_filename():
+    return _get_config()['db']['sqlite3']['filename']
 
 
 def get_sqlite3_db_connection():
-    file_path = get_sqlite3_db_path()
+    file_dir = get_sqlite3_db_dir()
+    filename = get_sqlite3_db_filename()
+    if not os.path.exists(file_dir):
+        os.makedirs(file_dir)
+    file_path = os.path.join(file_dir, filename)
     conn = sqlite3.connect(file_path)
     return conn
 

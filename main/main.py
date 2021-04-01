@@ -78,11 +78,13 @@ def request_historical_data(ib: IB, contract: Contract, barSizeSetting: str):
 
 if __name__ == '__main__':
     # 出现异常后自动重新尝试连接 TWS 和订阅 K 线
+    client_id = 2
     while True:
         try:
             # 创建 IB 对象并尝试连接
             ib = IB()
-            ib.connect('127.0.0.1', 7497, clientId=2)
+            ib.connect('127.0.0.1', 7497, clientId=client_id)
+            client_id += 1
             """
             #  方式1: 从 csv 文件 xxx.csv 获取股票列表
             #1> symbols
